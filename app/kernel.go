@@ -1,18 +1,24 @@
 package app
 
 import (
-    "github.com/DoNewsCode/core"
-    "github.com/DoNewsCode/core/config"
+	"github.com/DoNewsCode/core/otgorm"
+	"github.com/gorilla/mux"
+	"github.com/nfangxu/core-skeleton/app/repositories"
+	"net/http"
 )
 
 type Kernel struct {
+	users GinTransport
 }
 
-func Modules(c *core.C) {
-    c.AddModuleFunc(InjectKernel)
-    c.AddModuleFunc(config.New)
+func (a Kernel) ProvideHttp(router *mux.Router) {
+	router.PathPrefix("/users").Handler(http.StripPrefix("/users", a.users))
 }
 
-func Providers(c *core.C)  {
-    // c.Provide(otgorm.Provide)
+func (a Kernel) ProvideMigration() []*otgorm.Migration {
+	return repositories.ProviderMigrations()
+}
+
+func (a Kernel) ProvideSeed() []*otgorm.Seed {
+	return repositories.ProvideSeeders()
 }

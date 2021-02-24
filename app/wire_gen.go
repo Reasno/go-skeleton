@@ -7,11 +7,21 @@ package app
 
 import (
 	"github.com/DoNewsCode/core/contract"
+	"github.com/nfangxu/core-skeleton/app/handlers"
+	"github.com/nfangxu/core-skeleton/app/repositories"
+	"gorm.io/gorm"
 )
 
 // Injectors from wire.go:
 
-func InjectKernel(env contract.Env) (Kernel, error) {
-	kernel := Kernel{}
+func InjectKernel(db *gorm.DB, env contract.Env) (Kernel, error) {
+	userRepository := repositories.NewUserRepository(db)
+	usersHandler := handlers.UsersHandler{
+		Repository: userRepository,
+	}
+	ginTransport := NewGinTransport(usersHandler)
+	kernel := Kernel{
+		users: ginTransport,
+	}
 	return kernel, nil
 }
